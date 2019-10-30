@@ -95,5 +95,6 @@ setup(
        imagedraw_png = blockdiag.imagedraw.png
        imagedraw_svg = blockdiag.imagedraw.svg
        imagedraw_pdf = blockdiag.imagedraw.pdf
+       imagedraw_tikz = blockdiag.imagedraw.tikz
     """,
 )
