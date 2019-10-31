@@ -94,14 +94,13 @@ class TikZDraw(base.ImageDraw):
     arrowRight/.style={{-{{Triangle[length={arrow_head_size}pt, width={arrow_head_size}pt]}}, arrowBase}},
     arrowOpenLeft/.style={{{{Straight Barb[open, length={arrow_head_size}pt, width={arrow_head_size}pt]}}-, arrowBase}},
     arrowOpenRight/.style={{-{{Straight Barb[open, length={arrow_head_size}pt, width={arrow_head_size}pt]}}, arrowBase}},
-    noteBox/.style={{shape=document, draw, fill={note_color}}}'''.format(
+    noteBox/.style={{shape=document, draw, align=left}}'''.format(
             self.node_xscale, self.node_yscale,
             actor_width=18 * self.node_xscale,
             actor_height=18 * self.node_yscale,
             activity_color=_rgb_color(255, 228, 181),  # aka 'moccasin'
             shorten_arrow=0.5 * self.node_xscale,
-            arrow_head_size=round(1.5 * self.node_xscale),
-            note_color=_rgb_color(255, 182, 193))
+            arrow_head_size=round(1.5 * self.node_xscale))
 
     def _draw_actor(self, actor):
         actor_head_pos = _node_position(
@@ -189,10 +188,15 @@ class TikZDraw(base.ImageDraw):
                 arrow_style, edge_style, out_pos, path_options, label_node, in_pos))
 
     def _draw_separator(self, separator):
-        path_style = 'double distance={}pt'.format(.2 * self.node_xscale)
+        path_type = 'path'
+        label_node_options = 'fill=white'
+        if separator.type == 'divider':
+            path_type = 'draw [double distance={}pt]'.format(
+                round(.2 * self.node_xscale, 2))
 
-        label_node_options = 'draw, fill={}'.format(
-            _rgb_color(*separator.color))
+            label_node_options = 'draw, fill={}'.format(
+                _rgb_color(*separator.color))
+
         label_node = ' node [{}] {{{}}}'.format(
             label_node_options, separator.label)
 
@@ -201,20 +205,23 @@ class TikZDraw(base.ImageDraw):
                                 separator.order)
 
         self.tikz_content.append(
-            '\\draw [{}] {} to{} {};'.format(
-                path_style, out_pos, label_node, in_pos))
+            '\\{} {} to{} {};'.format(
+                path_type, out_pos, label_node, in_pos))
 
     def _draw_notes(self, edge):
         note_offset = 0.1
+        note_color = 'fill={}, '.format(_rgb_color(*edge.notecolor))
         if edge.leftnote:
             self.tikz_content.append(
-                '\\node [noteBox, anchor=east] at {} {{{}}};'.format(
+                '\\node [noteBox, {}anchor=east] at {} {{{}}};'.format(
+                    note_color,
                     _node_position(edge.left_node.xy.x -
                                    note_offset, edge.order),
                     edge.leftnote))
         if edge.rightnote:
             self.tikz_content.append(
-                '\\node [noteBox, anchor=west] at {} {{{}}};'.format(
+                '\\node [noteBox, {}anchor=west] at {} {{{}}};'.format(
+                    note_color,
                     _node_position(edge.right_node.xy.x +
                                    note_offset, edge.order),
                     edge.rightnote))
