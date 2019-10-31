@@ -25,6 +25,14 @@ class DiagramDraw(object):
 
     def __init__(self, _format, diagram, filename=None, **kwargs):
         self.format = _format.upper()
+        if self.format == 'TIKZ':
+            self.drawer = imagedraw.create(
+                self.format, filename, diagram=diagram, **kwargs)
+            # monkey patch to omit DiagramDraw logic
+            self.draw = self.drawer.draw
+            self.save = self.drawer.save
+            return
+
         self.diagram = diagram
         self.fill = kwargs.get('fill', (0, 0, 0))
         self.badgeFill = kwargs.get('badgeFill', 'pink')
